@@ -1,0 +1,50 @@
+# Umami analytics for https://panoskola.github.io
+# Caddy (automatic HTTPS) -> Umami -> PostgreSQL. Only Caddy is exposed to the internet.
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      UMAMI_DOMAIN: ${UMAMI_DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - umami
+
+  umami:
+    image: ghcr.io/umami-software/umami:${UMAMI_VERSION:-latest}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://umami:${POSTGRES_PASSWORD}@db:5432/umami
+      APP_SECRET: ${APP_SECRET}
+      DISABLE_TELEMETRY: "1"
+    expose:
+      - "3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - umami_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U umami -d umami"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  caddy_data:
+  caddy_config:
+  umami_db:

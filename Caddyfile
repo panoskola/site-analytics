@@ -1,0 +1,12 @@
+# Caddy gets and renews a Let's Encrypt certificate for this hostname automatically.
+{$UMAMI_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy umami:3000
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}
