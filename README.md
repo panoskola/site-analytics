@@ -183,3 +183,9 @@ a check in the runbook above.
 - Secrets live in `.env`, which is git-ignored.
 - PostgreSQL and Umami are not published to the host; only Caddy listens on 80/443.
 - Unattended security upgrades enabled on the host.
+
+## Notes
+
+Configuration files and documentation were drafted with the assistance of
+[Claude](https://claude.ai/), Anthropic's AI model. Deployment, server setup,
+troubleshooting and day-to-day operation are by the maintainer.
